@@ -50,6 +50,7 @@ VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 #define NVVK_ALLOC_DEDICATED
 #include "nvvk/allocator_vk.hpp"
 
+#include "nvpsystem.hpp"
 #include <iostream>
 #include <random>
 
@@ -282,6 +283,9 @@ private:
 //
 int main(int argc, char** argv)
 {
+  // setup some basic things for the sample, logging file for example
+  NVPSystem system(PROJECT_NAME);
+
   InputParser parser(argc, argv);
   if(parser.exist("-h"))
   {
@@ -304,8 +308,8 @@ int main(int argc, char** argv)
   }
 
   s_defaultSearchPaths = {
-      PROJECT_ABSDIRECTORY,
-      PROJECT_ABSDIRECTORY "../",
+      NVPSystem::exePath() + PROJECT_RELDIRECTORY,
+      PROJECT_NAME,
   };
 
   LOGI("Starting Application\n");
