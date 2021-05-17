@@ -1,29 +1,22 @@
-/* Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+/*
+ * Copyright (c) 2019-2021, NVIDIA CORPORATION.  All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *  * Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *  * Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *  * Neither the name of NVIDIA CORPORATION nor the names of its
- *    contributors may be used to endorse or promote products derived
- *    from this software without specific prior written permission.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ``AS IS'' AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
- * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2021 NVIDIA CORPORATION
+ * SPDX-License-Identifier: Apache-2.0
  */
+
 
 //--------------------------------------------------------------------------------------------------
 // Very simple Vulkan example which render an image and save it to disk
@@ -43,12 +36,12 @@
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "fileformats/stb_image_write.h"
+#include "stb_image_write.h"
 
 
 // Allocator : using dedicated
-#define NVVK_ALLOC_DEDICATED
-#include "nvvk/allocator_vk.hpp"
+
+#include "nvvk/resourceallocator_vk.hpp"
 
 #include "nvpsystem.hpp"
 #include <iostream>
@@ -262,20 +255,20 @@ public:
 
 
 private:
-  vk::Instance       m_instance;        // Vulkan instance
-  vk::Device         m_device;          // Logical GPU
-  vk::PhysicalDevice m_physicalDevice;  // Physical GPU
-  vk::Pipeline       m_pipeline;        // Graphic pipeline
-  vk::PipelineLayout m_pipelineLayout;  // Graphic pipeline layout
-  nvvk::Allocator    m_alloc;           // Allocator for buffer, images ( see nvvk/allocator_vk.hpp )
-  nvvk::Texture      m_colorTexture;    // colored image
-  nvvk::Texture      m_depthTexture;    // depth buffer
-  vk::Framebuffer    m_framebuffer;     // color + depth framebuffer
-  vk::RenderPass     m_renderPass;      // Base render pass
-  vk::Extent2D       m_size{0, 0};      // Size of the window
-  uint32_t           m_graphicsQueueIndex{VK_QUEUE_FAMILY_IGNORED};
-  vk::Format         m_colorFormat{vk::Format::eR8G8B8A8Unorm};
-  vk::Format         m_depthFormat{vk::Format::eD32Sfloat};
+  vk::Instance                     m_instance;        // Vulkan instance
+  vk::Device                       m_device;          // Logical GPU
+  vk::PhysicalDevice               m_physicalDevice;  // Physical GPU
+  vk::Pipeline                     m_pipeline;        // Graphic pipeline
+  vk::PipelineLayout               m_pipelineLayout;  // Graphic pipeline layout
+  nvvk::ResourceAllocatorDedicated m_alloc;           // Allocator for buffer, images 
+  nvvk::Texture                    m_colorTexture;    // colored image
+  nvvk::Texture                    m_depthTexture;    // depth buffer
+  vk::Framebuffer                  m_framebuffer;     // color + depth framebuffer
+  vk::RenderPass                   m_renderPass;      // Base render pass
+  vk::Extent2D                     m_size{0, 0};      // Size of the window
+  uint32_t                         m_graphicsQueueIndex{VK_QUEUE_FAMILY_IGNORED};
+  vk::Format                       m_colorFormat{vk::Format::eR8G8B8A8Unorm};
+  vk::Format                       m_depthFormat{vk::Format::eD32Sfloat};
 };
 
 //--------------------------------------------------------------------------------------------------
