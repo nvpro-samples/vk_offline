@@ -320,7 +320,7 @@ int main(int argc, char** argv)
 
   // Printing which GPU we are using
   vk::PhysicalDevice pd(vkctx.m_physicalDevice);
-  LOGI("Using GPU: %s\n", pd.getProperties().deviceName);
+  LOGI("Using GPU: %s\n", pd.getProperties().deviceName.data());
   LOGI("Rendering:  time(%f), resolution(%d, %d)\n", s_animTime, winSize[0], winSize[1]);
 
   // Running our example
