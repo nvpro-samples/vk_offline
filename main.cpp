@@ -260,7 +260,7 @@ private:
   vk::PhysicalDevice               m_physicalDevice;  // Physical GPU
   vk::Pipeline                     m_pipeline;        // Graphic pipeline
   vk::PipelineLayout               m_pipelineLayout;  // Graphic pipeline layout
-  nvvk::ResourceAllocatorDedicated m_alloc;           // Allocator for buffer, images 
+  nvvk::ResourceAllocatorDedicated m_alloc;           // Allocator for buffer, images
   nvvk::Texture                    m_colorTexture;    // colored image
   nvvk::Texture                    m_depthTexture;    // depth buffer
   vk::Framebuffer                  m_framebuffer;     // color + depth framebuffer
@@ -292,6 +292,8 @@ int main(int argc, char** argv)
   auto winSize    = parser.getInt2("-s", {SAMPLE_SIZE_WIDTH, SAMPLE_SIZE_HEIGHT});
   auto outputFile = parser.getString("-o", "result.png");
 
+  VkExtent2D sampleSize = {uint32_t(winSize[0]), uint32_t(winSize[1])};
+
   if(s_animTime < 0.0)
   {
     std::random_device                    rd;
@@ -321,12 +323,12 @@ int main(int argc, char** argv)
   // Printing which GPU we are using
   vk::PhysicalDevice pd(vkctx.m_physicalDevice);
   LOGI("Using GPU: %s\n", pd.getProperties().deviceName.data());
-  LOGI("Rendering:  time(%f), resolution(%d, %d)\n", s_animTime, winSize[0], winSize[1]);
+  LOGI("Rendering:  time(%f), resolution(%d, %d)\n", s_animTime, sampleSize.width, sampleSize.height);
 
   // Running our example
   DummyExample example;
   example.setup(vkctx.m_instance, vkctx.m_device, vkctx.m_physicalDevice, vkctx.m_queueGCT.familyIndex);
-  example.createFramebuffer(vk::Extent2D(winSize[0], winSize[1]));  // Framebuffer where it will render
+  example.createFramebuffer(sampleSize);                            // Framebuffer where it will render
   example.createPipeline();                                         // How the quad will be rendered: shaders and more
   example.offlineRender();                                          // Rendering
 
