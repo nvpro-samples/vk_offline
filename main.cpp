@@ -311,7 +311,8 @@ int main(int argc, char** argv)
 
   // Creating the Vulkan instance and device, with only defaults, no extension
   nvvk::Context vkctx;
-  vkctx.init({});
+  nvvk::ContextCreateInfo vkctxInfo{};
+  vkctx.init(vkctxInfo);
 
   // Initialize Vulkan function pointers
   vk::DynamicLoader dl;
