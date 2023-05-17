@@ -32,6 +32,7 @@
 #include "nvvk/images_vk.hpp"
 #include "nvvk/pipeline_vk.hpp"
 #include "nvvk/renderpasses_vk.hpp"
+#include "nvvk/vulkanhppsupport.hpp"
 
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
@@ -46,7 +47,6 @@ VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 #include "nvpsystem.hpp"
 #include <iostream>
 #include <random>
-
 
 // Globals
 static int const                SAMPLE_SIZE_WIDTH  = 800;
@@ -119,7 +119,7 @@ public:
 
     // Make the image layout eTransferSrcOptimal to copy to buffer
     vk::ImageSubresourceRange subresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1);
-    nvvk::cmdBarrierImageLayout(cmdBuff, imgIn.image, vk::ImageLayout::eGeneral, vk::ImageLayout::eTransferSrcOptimal, subresourceRange);
+    nvvkpp::cmdBarrierImageLayout(cmdBuff, imgIn.image, vk::ImageLayout::eGeneral, vk::ImageLayout::eTransferSrcOptimal, subresourceRange);
 
     // Copy the image to the buffer
     vk::BufferImageCopy copyRegion;
@@ -128,7 +128,7 @@ public:
     cmdBuff.copyImageToBuffer(imgIn.image, vk::ImageLayout::eTransferSrcOptimal, pixelBufferOut, {copyRegion});
 
     // Put back the image as it was
-    nvvk::cmdBarrierImageLayout(cmdBuff, imgIn.image, vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eGeneral, subresourceRange);
+    nvvkpp::cmdBarrierImageLayout(cmdBuff, imgIn.image, vk::ImageLayout::eTransferSrcOptimal, vk::ImageLayout::eGeneral, subresourceRange);
     genCmdBuf.submitAndWait(cmdBuff);
   }
 
@@ -169,7 +169,7 @@ public:
     m_pipelineLayout = m_device.createPipelineLayout(layout_info);
 
     // Pipeline: completely generic, no vertices
-    nvvk::GraphicsPipelineGeneratorCombined pipelineGenerator(m_device, m_pipelineLayout, m_renderPass);
+    nvvkpp::GraphicsPipelineGeneratorCombined pipelineGenerator(m_device, m_pipelineLayout, m_renderPass);
     pipelineGenerator.addShader(nvh::loadFile("shaders/vert_shader.spv", true, paths), vk::ShaderStageFlagBits::eVertex);
     pipelineGenerator.addShader(nvh::loadFile("shaders/frag_shader.spv", true, paths), vk::ShaderStageFlagBits::eFragment);
     pipelineGenerator.rasterizationState.setCullMode(vk::CullModeFlagBits::eNone);
@@ -184,7 +184,7 @@ public:
     m_size = size;
 
     // Creating the color image
-    auto colorCreateInfo = nvvk::makeImage2DCreateInfo(size, m_colorFormat,
+    auto colorCreateInfo = nvvkpp::makeImage2DCreateInfo(size, m_colorFormat,
                                                        vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled
                                                            | vk::ImageUsageFlagBits::eStorage);
 
@@ -196,7 +196,7 @@ public:
     m_colorTexture.descriptor.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
     // Creating the depth buffer (not needed, but useful if the sample has to change)
-    auto depthCreateInfo = nvvk::makeImage2DCreateInfo(size, m_depthFormat, vk::ImageUsageFlagBits::eDepthStencilAttachment);
+    auto depthCreateInfo = nvvkpp::makeImage2DCreateInfo(size, m_depthFormat, vk::ImageUsageFlagBits::eDepthStencilAttachment);
     nvvk::Image dImage = m_alloc.createImage(depthCreateInfo);
 
     vk::ImageViewCreateInfo depthStencilView;
@@ -208,19 +208,19 @@ public:
 
     // Setting the image layout for both color and depth
     {
-      nvvk::CommandPool genCmdBuf(m_device, m_graphicsQueueIndex);
-      vk::CommandBuffer cmdBuf = genCmdBuf.createCommandBuffer();
-      nvvk::cmdBarrierImageLayout(cmdBuf, m_colorTexture.image, vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral);
-      nvvk::cmdBarrierImageLayout(cmdBuf, m_depthTexture.image, vk::ImageLayout::eUndefined,
-                                  vk::ImageLayout::eDepthStencilAttachmentOptimal, vk::ImageAspectFlagBits::eDepth);
+      nvvkpp::CommandPool genCmdBuf(m_device, m_graphicsQueueIndex);
+      vk::CommandBuffer    cmdBuf = genCmdBuf.createCommandBuffer();
+      nvvkpp::cmdBarrierImageLayout(cmdBuf, m_colorTexture.image, vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral);
+      nvvkpp::cmdBarrierImageLayout(cmdBuf, m_depthTexture.image, vk::ImageLayout::eUndefined,
+                                     vk::ImageLayout::eDepthStencilAttachmentOptimal, vk::ImageAspectFlagBits::eDepth);
 
-      genCmdBuf.submitAndWait(cmdBuf);
+      genCmdBuf.submitAndWait({cmdBuf});
     }
 
     // Creating a renderpass for the offscreen
     if(!m_renderPass)
     {
-      m_renderPass = nvvk::createRenderPass(m_device, {m_colorFormat}, m_depthFormat, 1, true, true,
+      m_renderPass = nvvkpp::createRenderPass(m_device, {m_colorFormat}, m_depthFormat, 1, true, true,
                                             vk::ImageLayout::eGeneral, vk::ImageLayout::eGeneral);
     }
 
@@ -260,7 +260,7 @@ private:
   vk::PhysicalDevice               m_physicalDevice;  // Physical GPU
   vk::Pipeline                     m_pipeline;        // Graphic pipeline
   vk::PipelineLayout               m_pipelineLayout;  // Graphic pipeline layout
-  nvvk::ResourceAllocatorDedicated m_alloc;           // Allocator for buffer, images
+  nvvkpp::ResourceAllocatorDedicated m_alloc;           // Allocator for buffer, images
   nvvk::Texture                    m_colorTexture;    // colored image
   nvvk::Texture                    m_depthTexture;    // depth buffer
   vk::Framebuffer                  m_framebuffer;     // color + depth framebuffer
