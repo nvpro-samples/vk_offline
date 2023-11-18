@@ -318,8 +318,8 @@ int main(int argc, char** argv)
   vk::DynamicLoader dl;
   auto              vkGetInstanceProcAddr = dl.getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr");
   VULKAN_HPP_DEFAULT_DISPATCHER.init(vkGetInstanceProcAddr);
-  VULKAN_HPP_DEFAULT_DISPATCHER.init(vkctx.m_instance);
-  VULKAN_HPP_DEFAULT_DISPATCHER.init(vkctx.m_device);
+  VULKAN_HPP_DEFAULT_DISPATCHER.init(static_cast<vk::Instance>(vkctx.m_instance));
+  VULKAN_HPP_DEFAULT_DISPATCHER.init(static_cast<vk::Device>(vkctx.m_device));
 
   // Printing which GPU we are using
   vk::PhysicalDevice pd(vkctx.m_physicalDevice);
