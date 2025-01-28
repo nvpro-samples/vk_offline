@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2019-2025, NVIDIA CORPORATION.  All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * SPDX-FileCopyrightText: Copyright (c) 2019-2021 NVIDIA CORPORATION
+ * SPDX-FileCopyrightText: Copyright (c) 2019-2025 NVIDIA CORPORATION
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -315,7 +315,11 @@ int main(int argc, char** argv)
   vkctx.init(vkctxInfo);
 
   // Initialize Vulkan function pointers
+#if VK_HEADER_VERSION >= 304
+  vk::detail::DynamicLoader dl;
+#else
   vk::DynamicLoader dl;
+#endif
   auto              vkGetInstanceProcAddr = dl.getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr");
   VULKAN_HPP_DEFAULT_DISPATCHER.init(vkGetInstanceProcAddr);
   VULKAN_HPP_DEFAULT_DISPATCHER.init(static_cast<vk::Instance>(vkctx.m_instance));
